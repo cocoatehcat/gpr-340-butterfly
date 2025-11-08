@@ -13,19 +13,34 @@ public class CapsuleController : MonoBehaviour
     private Rigidbody rb;
     private float movementX;
     private float movementY;
+    private Vector3 startPos;
 
-    public float speed = 5;
+    [SerializeField]
+    private float speed;
+    [SerializeField]
+    private float jumpSpeed;
 
-    private void Start()
+    private bool jumpCheck;
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        startPos = transform.position;
     }
 
     private void FixedUpdate()
     {
-        Vector3 movement = new Vector3(movementX, 0.0f, movementY);
+        Vector3 velocity = new Vector3(movementX * speed, 0.0f, movementY * speed);
 
-        rb.AddForce(movement * speed);
+        velocity.y = rb.linearVelocity.y;
+
+        if (jumpCheck)
+        {
+            velocity.y = jumpSpeed;
+            jumpCheck = false;
+        }
+
+        rb.linearVelocity = velocity;
     }
 
     void OnMove(InputValue movementValue)
@@ -34,5 +49,14 @@ public class CapsuleController : MonoBehaviour
 
         movementX = movementVector.x;
         movementY = movementVector.y;
+    }
+
+    void OnJump(InputValue jumpValue)
+    {
+        if (transform.position.y > startPos.y)
+        {
+            return;
+        }
+        jumpCheck = true;
     }
 }
