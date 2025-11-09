@@ -59,14 +59,7 @@ public class Grid : MonoBehaviour
             {
                 vertices[i] = new Vector3(x, 0, z);
 
-                // Tree
-                float num = Random.value;
-
-                if (num > 0.6)
-                {
-                    Instantiate(tree);
-                    tree.transform.position = new Vector3(x * width, tree.transform.position.y, z * height);
-                }
+                
             }
         }
 
@@ -83,6 +76,11 @@ public class Grid : MonoBehaviour
                 triangles[ti + 5] = vi + width + 2;
                 mesh.triangles = triangles;
 
+                // Tree
+                float modifier = Random.Range(10, 20);
+
+                Instantiate(tree);
+                tree.transform.position = new Vector3(x * modifier, tree.transform.position.y, z * modifier);
                 
             }
 
