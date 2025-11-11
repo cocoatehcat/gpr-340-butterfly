@@ -7,8 +7,8 @@ public class GridManager : MonoBehaviour
     public static GridManager Instance;
 
     [Header("Grid Settings")]
-    public int gridWidth = 64;
-    public int gridHeight = 64;
+    public int gridWidth;
+    public int gridHeight;
     public float cellSize = 1f;
     public Vector3 origin = Vector3.zero;
 
@@ -58,9 +58,11 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        // Adjust origin to match heightmap’s bottom-left corner (if terrain is centered)
         Vector3 terrainSize = heightmapGenerator.GetWorldSize();
-        origin = heightmapGenerator.transform.position - new Vector3(terrainSize.x / 2f, 0, terrainSize.z / 2f);
+        Vector3 localPos = heightmapGenerator.transform.position;
+        origin = transform.TransformPoint(localPos);
+        //origin = heightmapGenerator.transform.position;
+
 
         grid = new Node[gridWidth, gridHeight];
 
@@ -182,7 +184,7 @@ public class GridManager : MonoBehaviour
         // Draw grid area
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(
-            origin + new Vector3(gridWidth * cellSize / 2f, 0, gridHeight * cellSize / 2f),
+            origin + new Vector3((gridWidth * cellSize), 0, gridHeight * cellSize),
             new Vector3(gridWidth * cellSize, 0, gridHeight * cellSize)
         );
     }
