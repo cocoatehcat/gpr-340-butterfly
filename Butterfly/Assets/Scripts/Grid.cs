@@ -12,6 +12,13 @@ public class Grid : MonoBehaviour
     private int height;
     [SerializeField]
     private GameObject tree;
+    [SerializeField]
+    private GameObject flower;
+
+    [SerializeField]
+    private GameObject flowerParent;
+    [SerializeField]
+    private GameObject treeParent;
 
     private Vector3[] vertices;
     private Mesh mesh;
@@ -79,8 +86,17 @@ public class Grid : MonoBehaviour
                 // Tree
                 float modifier = Random.Range(10, 20);
 
-                Instantiate(tree);
-                tree.transform.position = new Vector3(x * modifier, tree.transform.position.y, z * modifier);
+                GameObject go = Instantiate(tree);
+                go.transform.position = new Vector3(x * modifier, go.transform.position.y, z * modifier);
+                go.transform.parent = treeParent.transform;
+
+                // Flower
+                modifier = Random.Range(5, 10);
+
+                go = Instantiate(flower);
+                go.transform.position = new Vector3(x * modifier, go.transform.position.y, z * modifier);
+                go.transform.parent = flowerParent.transform;
+
                 
             }
 
