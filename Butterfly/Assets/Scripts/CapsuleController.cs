@@ -21,6 +21,9 @@ public class CapsuleController : MonoBehaviour
     private float jumpSpeed;
 
     private bool jumpCheck;
+    public Transform groundCheckPosition;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.5f);
+    public LayerMask groundMask;
 
     private void Awake()
     {
@@ -53,10 +56,21 @@ public class CapsuleController : MonoBehaviour
 
     void OnJump(InputValue jumpValue)
     {
-        if (transform.position.y > startPos.y)
-        {
-            return;
-        }
+        // Arija is bugfixing this
+        //if (Physics.SphereCast() 
+        //{
+        //    jumpCheck = true;
+        //}
+
         jumpCheck = true;
+        
+    }
+
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellowGreen;
+        Gizmos.DrawCube(groundCheckPosition.position, groundCheckSize);
     }
 }
