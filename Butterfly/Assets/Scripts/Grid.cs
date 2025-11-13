@@ -107,17 +107,17 @@ public class Grid : MonoBehaviour
 }
 
 // Generate new grid
-[CustomEditor(typeof(Grid))]
-public class GridEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        var grid = (Grid)target;
+//[CustomEditor(typeof(Grid))]
+//public class GridEditor : Editor
+//{
+//    public override void OnInspectorGUI()
+//    {
+//        base.OnInspectorGUI();
+//        var grid = (Grid)target;
 
-        if (GUILayout.Button("Reload Grid", GUILayout.Width(200)))
-        {
-            grid.DrawGrid();
-        }
-    }
-}
+//        if (GUILayout.Button("Reload Grid", GUILayout.Width(200)))
+//        {
+//            grid.DrawGrid();
+//        }
+//    }
+//}
