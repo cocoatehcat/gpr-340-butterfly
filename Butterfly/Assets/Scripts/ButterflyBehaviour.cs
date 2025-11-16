@@ -10,26 +10,35 @@ public class ButterflyBehaviour : MonoBehaviour
     public GridManager gridManager;
     public Pathfinder pathfinder;
     public Transform player;
+
+    [Header("Behavior Settings")]
     public float playerDetectionRadius = 5f;
+    public float escapeDistance = 10f;
+    public float moveSpeed = 2.5f;
     public float flowerReachDistance = 0.5f;
 
     private Vector3 targetPos;
-    private List<Node> currentPath;
+    private List<Node> currentPath = null;
     private int currentPathIndex = 0;
 
     private void Update()
     {
-        switch (currentState)
-        {
-            case ButterflyState.SeekingFlower:
-                HandleSeekingFlower();
-                break;
+        if (currentState == ButterflyState.SeekingFlower)
+            HandleSeekingFlower();
+        else
+            UpdateEscaping();
+        //switch (currentState)
+        //{
+        //    case ButterflyState.SeekingFlower:
+        //        HandleSeekingFlower();
+        //        break;
 
-            case ButterflyState.Escaping:
-                // PLACEHOLDER. ADD FUNCTION FOR RUNNING AWAY HERE
-                print("Butterfly running");
-                break;
-        }
+        //    case ButterflyState.Escaping:
+        //        // PLACEHOLDER. ADD FUNCTION FOR RUNNING AWAY HERE
+        //        UpdateEscaping(); 
+        //        print("Butterfly running");
+        //        break;
+        //}
     }
 
     private void HandleSeekingFlower()
@@ -37,7 +46,8 @@ public class ButterflyBehaviour : MonoBehaviour
         // Check for nearby player
         if (player != null && Vector3.Distance(transform.position, player.position) < playerDetectionRadius)
         {
-            ChangeState(ButterflyState.Escaping);
+           // ChangeState(ButterflyState.Escaping);
+            StartEscape();
             return;
         }
 
@@ -79,13 +89,52 @@ public class ButterflyBehaviour : MonoBehaviour
             }
         }
 
-        if (nearest != null)
-        {
-            print(targetPos);
-            targetPos = nearest.transform.position;
-            ComputePathToTarget();
-        }
+        if (nearest == null) return;
+
+        targetPos = nearest.transform.position;
+        ComputePathToTarget();
+
+
+        currentPath = pathfinder.FindPath(transform.position, targetPos);
+        currentPathIndex = 0;
     }
+
+
+
+// ESCAPING
+    private void StartEscape()
+    {
+        currentState = ButterflyState.Escaping;
+
+        Vector3 runDir = (transform.position - player.position).normalized;
+        Vector3 fleePos = transform.position + runDir * escapeDistance;
+
+        // Clamp to walkable node
+        Node node = gridManager.NodeFromWorldPosition(fleePos);
+        if (node == null || !node.walkable)
+            node = gridManager.GetFarthestNodeFrom(player.position);
+
+        targetPos = node.worldPosition;
+
+        currentPath = pathfinder.FindPath(transform.position, targetPos);
+        currentPathIndex = 0;
+    }
+
+    private void UpdateEscaping()
+    {
+        if (Vector3.Distance(transform.position, player.position) > playerDetectionRadius * 2f)
+        {
+            currentState = ButterflyState.SeekingFlower;
+            FindNewFlowerTarget();
+            return;
+        }
+
+        if (currentPath == null || currentPathIndex >= currentPath.Count)
+            return;
+
+        MoveAlongPath();
+    }
+
 
     private void ComputePathToTarget()
     {
@@ -98,7 +147,9 @@ public class ButterflyBehaviour : MonoBehaviour
             return;
         }
 
-        currentPath = pathfinder.FindPath(start, target);
+        // currentPath = pathfinder.FindPath(start, target);
+        currentPath = pathfinder.FindPath(transform.position, targetPos);
+
         currentPathIndex = 0;
 
         if (currentPath == null)
@@ -123,6 +174,7 @@ public class ButterflyBehaviour : MonoBehaviour
             currentPathIndex++;
         }
     }
+
 
     private void DrawPath(List<Node> path)
     {
@@ -161,6 +213,14 @@ public class ButterflyBehaviour : MonoBehaviour
     {
         if (currentState == newState) return;
         currentState = newState;
+
+        if (newState == ButterflyState.Escaping)
+            StartEscape();
+
+        if (newState == ButterflyState.SeekingFlower)
+            FindNewFlowerTarget();
+
+
         Debug.Log($"Butterfly state changed to: {newState}");
     }
 

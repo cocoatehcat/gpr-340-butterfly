@@ -7,8 +7,8 @@ public class GridManager : MonoBehaviour
     public static GridManager Instance;
 
     [Header("Grid Settings")]
-    public int gridWidth;
-    public int gridHeight;
+    public int gridWidth = 128;
+    public int gridHeight = 128;
     public float cellSize = 1f;
     public Vector3 origin = Vector3.zero;
 
@@ -60,8 +60,8 @@ public class GridManager : MonoBehaviour
 
         Vector3 terrainSize = heightmapGenerator.GetWorldSize();
         Vector3 localPos = heightmapGenerator.transform.position;
-        origin = transform.TransformPoint(localPos);
-        //origin = heightmapGenerator.transform.position;
+        //origin = transform.TransformPoint(localPos);
+        origin = heightmapGenerator.transform.position; 
 
 
         grid = new Node[gridWidth, gridHeight];
@@ -162,6 +162,28 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+
+    //============================= i added 
+    public Node GetFarthestNodeFrom(Vector3 position)
+    {
+        Node farthest = null;
+        float maxDist = 0f;
+
+        foreach (Node n in grid)
+        {
+            if (!n.walkable) continue;
+
+            float d = Vector3.Distance(position, n.worldPosition);
+            if (d > maxDist)
+            {
+                maxDist = d;
+                farthest = n;
+            }
+        }
+
+        return farthest;
+    }
+
 
     // Draw walkable/unwalkable nodes
     private void OnDrawGizmosSelected()

@@ -6,8 +6,8 @@ using UnityEngine;
 public class HeightmapGenerator : MonoBehaviour
 {
     [Header("Heightmap Settings")]
-    public int width = 128;
-    public int length = 128;
+    public int width = 64;
+    public int length = 64;
     public float cellSize = 1f;
     public float heightScale = 10f;
     public float noiseScale = 0.08f;
@@ -52,13 +52,13 @@ public class HeightmapGenerator : MonoBehaviour
                 Vector3 worldPos = transform.TransformPoint(localPos);
 
                 // Spawn tree
-                if (Random.value < 0.25f)
+                if (Random.value < 0.005f)
                 {
                     Instantiate(tree, worldPos, Quaternion.identity, treeParent.transform);
                 }
 
                 // Spawn flower
-                if (Random.value < 0.02f)
+                if (Random.value < 0.002f)
                 {
                     Instantiate(flower, worldPos, Quaternion.identity, flowerParent.transform);
                 }

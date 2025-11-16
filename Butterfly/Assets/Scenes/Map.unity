@@ -428,6 +428,8 @@ MonoBehaviour:
   pathfinder: {fileID: 1110148228}
   player: {fileID: 1781099865}
   playerDetectionRadius: 25
+  escapeDistance: 10
+  moveSpeed: 2.5
   flowerReachDistance: 0.5
 --- !u!54 &588027433
 Rigidbody:
@@ -499,7 +501,6 @@ GameObject:
   - component: {fileID: 746178835}
   - component: {fileID: 746178834}
   - component: {fileID: 746178833}
-  - component: {fileID: 746178837}
   - component: {fileID: 746178838}
   m_Layer: 0
   m_Name: Plane
@@ -596,30 +597,11 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 15.094395, y: 1, z: 17.445374}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &746178837
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 746178832}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83ef7aa9d4d3e4648bf81bafc1fe6bdf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Grid
-  debugMenu: 1
-  width: 5
-  height: 5
-  tree: {fileID: 4319574494873392715, guid: 5062b666c0820ac4f944819a15131cfe, type: 3}
-  flower: {fileID: 477146177254084673, guid: 49e393acbe09ba14581661e417d71fa3, type: 3}
-  flowerParent: {fileID: 700899945}
-  treeParent: {fileID: 1739086669}
 --- !u!114 &746178838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,10 +614,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b99525a15048386449d01949ab85dfaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeightmapGenerator
-  width: 20
-  length: 20
+  width: 200
+  length: 200
   cellSize: 1
-  heightScale: 25
+  heightScale: 1
   noiseScale: 0.4
   seed: 42
   tree: {fileID: 4319574494873392715, guid: 5062b666c0820ac4f944819a15131cfe, type: 3}
@@ -907,7 +889,7 @@ Transform:
   m_GameObject: {fileID: 1110148226}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25.3472, y: 0.00001, z: 31.8054}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
