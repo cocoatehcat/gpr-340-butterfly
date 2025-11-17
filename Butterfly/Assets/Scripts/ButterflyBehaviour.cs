@@ -20,6 +20,9 @@ public class ButterflyBehaviour : MonoBehaviour
     private Vector3 targetPos;
     private List<Node> currentPath = null;
     private int currentPathIndex = 0;
+    private float escapeCooldown = 0f;
+    private float escapeCooldownTime = 0.5f;
+
 
     private AgentController agent;
 
@@ -30,14 +33,11 @@ public class ButterflyBehaviour : MonoBehaviour
         agent = GetComponent<AgentController>();
     }
 
-    private void Start()
-    {
-        // Get initial flower path
-        FindNewFlowerTarget();
-    }
 
     private void Update()
     {
+       
+
         switch (currentState)
         {
             case ButterflyState.SeekingFlower:
@@ -45,16 +45,16 @@ public class ButterflyBehaviour : MonoBehaviour
                 break;
 
             case ButterflyState.Escaping:
-                // PLACEHOLDER. ADD FUNCTION FOR RUNNING AWAY HERE
                 UpdateEscaping();
                 print("Butterfly running");
                 break;
         }
     }
 
+
     private void HandleSeekingFlower()
     {
-        // Check for nearby player
+        // Detect player
         if (player != null && Vector3.Distance(transform.position, player.position) < playerDetectionRadius)
         {
             ChangeState(ButterflyState.Escaping);
@@ -62,28 +62,29 @@ public class ButterflyBehaviour : MonoBehaviour
             return;
         }
 
-        // If no path, get one
-        if (currentPath == null || currentPathIndex >= currentPath.Count)
+        // If path finished  find a new flower
+        if (agent.HasFinishedPath())
         {
             FindNewFlowerTarget();
             return;
         }
 
-        // Check if reached flower
+        // Reached flower
         if (Vector3.Distance(transform.position, targetPos) < flowerReachDistance)
         {
             FindNewFlowerTarget();
         }
     }
 
+
     private void FindNewFlowerTarget()
     {
         GameObject[] flowers = GameObject.FindGameObjectsWithTag("Flower");
-        //if (flowers.Length == 0)
-        //{
-        //    Debug.LogWarning("No flowers found!");
-        //    return;
-        //}
+        if (flowers.Length == 0)
+        {
+            Debug.LogWarning("No flowers found!");
+            return;
+        }
 
         // Find nearest flower
         GameObject nearest = null;
@@ -102,10 +103,6 @@ public class ButterflyBehaviour : MonoBehaviour
 
         targetPos = nearest.transform.position;
         ComputePathToTarget();
-
-
-       //currentPath = pathfinder.FindPath(transform.position, targetPos);
-       //currentPathIndex = 0; 
     }
 
 
@@ -125,25 +122,28 @@ public class ButterflyBehaviour : MonoBehaviour
 
         targetPos = node.worldPosition;
         ComputePathToTarget();
-        //currentPath = pathfinder.FindPath(transform.position, targetPos);
-        //currentPathIndex = 0;
     }
+
 
     private void UpdateEscaping()
     {
-        if (Vector3.Distance(transform.position, player.position) > playerDetectionRadius * 2f)
+        escapeCooldown -= Time.deltaTime;
+
+        if (agent.HasFinishedPath())
         {
-            print(targetPos); 
-            ComputePathToTarget();
-            //currentState = ButterflyState.SeekingFlower;
-            //FindNewFlowerTarget();
-            //return;
+            if (Vector3.Distance(transform.position, player.position) > playerDetectionRadius * 1.5f)
+            {
+                ChangeState(ButterflyState.SeekingFlower);
+                return;
+            }
+
+            if (escapeCooldown <= 0f)
+            {
+                escapeCooldown = escapeCooldownTime;
+                StartEscape();
+            }
         }
 
-        if (currentPath == null || currentPathIndex >= currentPath.Count)
-        {
-            StartEscape();
-        }
     }
 
 
@@ -170,10 +170,16 @@ public class ButterflyBehaviour : MonoBehaviour
 
         // Give path to AgentController (world-space waypoints)
         List<Vector3> waypoints = new List<Vector3>();
+ 
         foreach (Node n in currentPath)
         {
-            waypoints.Add(n.worldPosition);
+            Vector3 p = n.worldPosition;
+            p.y = 1.0f;    // keeps butterfly at a fixed hover height
+            //p.y = gridManager.NodeFromWorldPosition(p).worldPosition.y + 0.5f;
+
+            waypoints.Add(p);
         }
+
         agent.SetPath(waypoints);
         DrawPath(currentPath);
     }
@@ -221,8 +227,6 @@ public class ButterflyBehaviour : MonoBehaviour
 
         if (newState == ButterflyState.Escaping)
             StartEscape();
-        //else if (newState == ButterflyState.SeekingFlower)
-        //    FindNewFlowerTarget();
 
         if (newState == ButterflyState.SeekingFlower)
             FindNewFlowerTarget();

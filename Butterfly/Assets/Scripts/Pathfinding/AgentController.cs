@@ -6,7 +6,7 @@ using UnityEngine;
 public class AgentController : MonoBehaviour
 {
     public float moveSpeed = 4f;
-    public float turnSpeed = 10f;
+    public float turnSpeed = 1f;
     public float arriveThreshold = 0.3f;
 
     private List<Vector3> path = new List<Vector3>();
@@ -24,44 +24,16 @@ public class AgentController : MonoBehaviour
         }
     }
 
-    //void Update()
-    //{
-    //    if (path == null || path.Count == 0) return;
-    //    Vector3 target = path[currentIndex];
-    //    Vector3 dir = (target - transform.position);
-    //    dir.y = 0;
-    //    float dist = dir.magnitude;
-    //    if (dist < arriveThreshold)
-    //    {
-    //        currentIndex++;
-    //        if (currentIndex >= path.Count)
-    //        {
-    //            path.Clear();
-    //            return;
-    //        }
-    //        target = path[currentIndex];
-    //        dir = (target - transform.position);
-    //        dir.y = 0;
-    //    }
-    //    if (dir.sqrMagnitude > 0.001f)
-    //    {
-    //        Quaternion toRot = Quaternion.LookRotation(dir.normalized);
-    //        transform.rotation = Quaternion.Slerp(transform.rotation, toRot, Time.deltaTime * turnSpeed);
-    //    }
-    //    Vector3 move = transform.forward * moveSpeed * Time.deltaTime;
-    //    controller.Move(move);
-    //}
     void Update()
     {
         if (path == null || path.Count == 0) return;
 
         Vector3 target = path[currentIndex];
-        //Vector3 dir = (target - transform.position);
-        Vector3 dir = (target - transform.position);
-        dir.x = 0;
+        Vector3 dir = target - transform.position;
+        dir.y = 0;
         float dist = dir.magnitude;
 
-        // Reached a waypoint
+        // Arrived at waypoint
         if (dist < arriveThreshold)
         {
             currentIndex++;
@@ -70,35 +42,37 @@ public class AgentController : MonoBehaviour
                 path.Clear();
                 return;
             }
+
             target = path[currentIndex];
-            dir = (target - transform.position);
+            dir = target - transform.position;
+            dir.y = 0;
         }
 
-        // Rotate toward movement
-        // if (dir.sqrMagnitude > 0.001f)
-        if (dir.sqrMagnitude > 0.01f)
+        dir = dir.normalized;
+
+        // Rotate smoothly
+        if (dir.sqrMagnitude > 0.001f)
         {
-            dir = dir.normalized;
-
-            // rotate toward target
             Quaternion targetRot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.RotateTowards(
+            transform.rotation = Quaternion.Slerp(
                 transform.rotation, targetRot, turnSpeed * Time.deltaTime);
-
-            // move in the direction facing
-            transform.position += transform.forward * moveSpeed * Time.deltaTime;
-            Quaternion desiredRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z).normalized);
-            transform.rotation = Quaternion.Slerp(transform.rotation, desiredRot, Time.deltaTime * turnSpeed);
         }
 
-        // Move forward
-        Vector3 move = transform.forward * moveSpeed * Time.deltaTime;
+        // Move using CharacterController only
+        Vector3 move = dir * moveSpeed * Time.deltaTime;
 
-        // Apply gravity so it stays on terrain
-        move.y += -9.81f * Time.deltaTime;
+        // Hover slightly instead of gravity causing drift
+        move.y = -1f * Time.deltaTime;
 
         controller.Move(move);
     }
+
+
+    public bool HasFinishedPath()
+    {
+        return path == null || path.Count == 0;
+    }
+
 
 
     public void SetPath(List<Vector3> worldWaypoints)
