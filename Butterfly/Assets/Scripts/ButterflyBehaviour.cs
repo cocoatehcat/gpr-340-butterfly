@@ -79,11 +79,11 @@ public class ButterflyBehaviour : MonoBehaviour
     private void FindNewFlowerTarget()
     {
         GameObject[] flowers = GameObject.FindGameObjectsWithTag("Flower");
-        if (flowers.Length == 0)
-        {
-            Debug.LogWarning("No flowers found!");
-            return;
-        }
+        //if (flowers.Length == 0)
+        //{
+        //    Debug.LogWarning("No flowers found!");
+        //    return;
+        //}
 
         // Find nearest flower
         GameObject nearest = null;
@@ -133,9 +133,11 @@ public class ButterflyBehaviour : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, player.position) > playerDetectionRadius * 2f)
         {
-            currentState = ButterflyState.SeekingFlower;
+            print(targetPos); 
+            ComputePathToTarget();
+            //currentState = ButterflyState.SeekingFlower;
             //FindNewFlowerTarget();
-            return;
+            //return;
         }
 
         if (currentPath == null || currentPathIndex >= currentPath.Count)

@@ -74,22 +74,22 @@ public class AgentController : MonoBehaviour
             dir = (target - transform.position);
         }
 
-       // // Rotate toward movement
-       //// if (dir.sqrMagnitude > 0.001f)
-       // if (dir.sqrMagnitude > 0.01f)
-       // {
-       //     dir = dir.normalized;
+        // Rotate toward movement
+        // if (dir.sqrMagnitude > 0.001f)
+        if (dir.sqrMagnitude > 0.01f)
+        {
+            dir = dir.normalized;
 
-       //     // rotate toward target
-       //     Quaternion targetRot = Quaternion.LookRotation(dir);
-       //     transform.rotation = Quaternion.RotateTowards(
-       //         transform.rotation, targetRot, turnSpeed * Time.deltaTime);
+            // rotate toward target
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, targetRot, turnSpeed * Time.deltaTime);
 
-       //     // move in the direction facing
-       //    // transform.position += transform.forward * moveSpeed * Time.deltaTime;
-       //     //Quaternion desiredRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z).normalized);
-       //     //transform.rotation = Quaternion.Slerp(transform.rotation, desiredRot, Time.deltaTime * turnSpeed);
-       // }
+            // move in the direction facing
+            transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            Quaternion desiredRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z).normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, desiredRot, Time.deltaTime * turnSpeed);
+        }
 
         // Move forward
         Vector3 move = transform.forward * moveSpeed * Time.deltaTime;
