@@ -5,14 +5,27 @@ using System.Linq;
 public class Pathfinder : MonoBehaviour
 {
     public GridManager gridManager;
+    public Camera playerCamera;
     public float baseCost = 1f;
     public float heightPenaltyFactor = 2f;
     public float diagonalCost = 1.4142f;
+    private float nextVisUpdate;
+    public float visablityCost = 3f;
     public bool allowDiagonal = true;
 
     void Start()
     {
         if (gridManager == null) gridManager = GridManager.Instance;
+    }
+
+    private void Update()
+    {
+        if (Time.time >= nextVisUpdate)
+        {
+            UpdateVisibilityCost();
+            // Updating about 5 times per second
+            nextVisUpdate = Time.time + 0.2f;
+        }
     }
 
     public List<Node> FindPath(Vector3 startWorld, Vector3 targetWorld)
@@ -25,6 +38,7 @@ public class Pathfinder : MonoBehaviour
     public List<Node> FindPath(Node startNode, Node targetNode)
     {
         if (startNode == null || targetNode == null) return null;
+
         List<Node> openSet = new List<Node>();
         HashSet<Node> closedSet = new HashSet<Node>();
         openSet.Add(startNode);
@@ -60,13 +74,42 @@ public class Pathfinder : MonoBehaviour
         return null;
     }
 
+    private bool IsVisibleToCamera(Vector3 worldPos)
+    {
+        Vector3 viewportPos = playerCamera.WorldToViewportPoint(worldPos);
+
+        // Check if inside camera frustum
+        bool inView = viewportPos.x >= 0 && viewportPos.x <= 1 && viewportPos.y >= 0 && viewportPos.y <= 1 && viewportPos.z > 0;
+
+        if (!inView) return false;
+
+        if (Physics.Raycast(playerCamera.transform.position, (worldPos - playerCamera.transform.position).normalized, out RaycastHit hit))
+        {
+            return hit.collider != null && hit.collider.transform.position == worldPos;
+        }
+
+        return false;
+    }
+
+    public void UpdateVisibilityCost()
+    {
+        foreach (Node node in gridManager.grid)
+        {
+            if (IsVisibleToCamera(node.worldPosition))
+                node.visablityCost = visablityCost;
+            else
+                node.visablityCost = 1f;
+        }
+    }
+
     private float MovementCost(Node a, Node b)
     {
         float planarDist = (a.gridX != b.gridX && a.gridY != b.gridY) ? diagonalCost : baseCost;
         float heightDiff = Mathf.Abs(a.worldPosition.y - b.worldPosition.y);
         float heightPenalty = 1f + heightPenaltyFactor * heightDiff;
+        float visibility = Mathf.Max(a.visablityCost, b.visablityCost);
         float weight = (a.weight + b.weight) * 0.5f;
-        return planarDist * baseCost * weight * heightPenalty;
+        return planarDist * baseCost * weight * heightPenalty * visibility;
     }
 
     private float Heuristic(Node a, Node b)

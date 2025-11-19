@@ -6,7 +6,9 @@ public class Node
     public int gridY;
     public Vector3 worldPosition;
     public bool walkable;
+    public bool visable;
     public float weight = 1f;
+    public float visablityCost = 1f;
 
     public float gCost;
     public float hCost;

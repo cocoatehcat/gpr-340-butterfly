@@ -23,6 +23,8 @@ public class HeightmapGenerator : MonoBehaviour
     [SerializeField]
     private GameObject flower;
 
+    float treeOffset = 7f;
+
     [SerializeField]
     private GameObject flowerParent;
     [SerializeField]
@@ -54,7 +56,8 @@ public class HeightmapGenerator : MonoBehaviour
                 // Spawn tree
                 if (Random.value < 0.005f)
                 {
-                    Instantiate(tree, worldPos, Quaternion.identity, treeParent.transform);
+                    Instantiate(tree, worldPos + Vector3.up * treeOffset, Quaternion.identity, treeParent.transform);
+                    continue;
                 }
 
                 // Spawn flower

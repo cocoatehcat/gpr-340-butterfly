@@ -544,7 +544,7 @@ GameObject:
   - component: {fileID: 746178834}
   - component: {fileID: 746178833}
   - component: {fileID: 746178838}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -950,9 +950,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Pathfinder
   gridManager: {fileID: 1110148230}
+  playerCamera: {fileID: 2063803903}
   baseCost: 1
   heightPenaltyFactor: 2
   diagonalCost: 1.4142
+  visablityCost: 3
   allowDiagonal: 1
 --- !u!114 &1110148230
 MonoBehaviour:
@@ -1079,7 +1081,7 @@ MonoBehaviour:
   groundCheckSize: {x: 0.74, y: 0.11}
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
 --- !u!23 &1781099863
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -37,13 +37,18 @@ public class CapsuleController : MonoBehaviour
 
         velocity.y = rb.linearVelocity.y;
 
-        if (jumpCheck)
+        if (jumpCheck && IsGrounded())
         {
             velocity.y = jumpSpeed;
             jumpCheck = false;
         }
 
         rb.linearVelocity = velocity;
+    }
+
+    private bool IsGrounded()
+    {
+        return Physics.CheckBox(groundCheckPosition.position,groundCheckSize * 0.6f,Quaternion.identity,groundMask);
     }
 
     void OnMove(InputValue movementValue)
