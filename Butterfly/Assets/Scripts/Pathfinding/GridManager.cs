@@ -61,7 +61,7 @@ public class GridManager : MonoBehaviour
         Vector3 terrainSize = heightmapGenerator.GetWorldSize();
         Vector3 localPos = heightmapGenerator.transform.position;
         //origin = transform.TransformPoint(localPos);
-        origin = heightmapGenerator.transform.position; 
+        origin = heightmapGenerator.transform.position;
 
 
         grid = new Node[gridWidth, gridHeight];
@@ -141,7 +141,7 @@ public class GridManager : MonoBehaviour
             return null;
 
         }
-            
+
 
         return grid[x, y];
     }
@@ -210,4 +210,21 @@ public class GridManager : MonoBehaviour
             new Vector3(gridWidth * cellSize, 0, gridHeight * cellSize)
         );
     }
+
+    // no spawn fly off 
+    public Vector3 ClampToGrid(Vector3 worldPos)
+    {
+        float minX = grid[0, 0].worldPosition.x;
+        float maxX = grid[gridWidth - 1, 0].worldPosition.x;
+
+        float minZ = grid[0, 0].worldPosition.z;
+        float maxZ = grid[0, gridHeight - 1].worldPosition.z;
+
+        return new Vector3(
+            Mathf.Clamp(worldPos.x, minX, maxX),
+            worldPos.y,
+            Mathf.Clamp(worldPos.z, minZ, maxZ)
+        );
+    }
+
 }

@@ -3,259 +3,245 @@ using UnityEngine;
 
 public class ButterflyBehaviour : MonoBehaviour
 {
+    public enum State { SeekingFlower, Escaping }
+    private State state = State.SeekingFlower;
 
-    public enum ButterflyState { SeekingFlower, Escaping }
-    public ButterflyState currentState = ButterflyState.SeekingFlower;
-
+    [Header("Dependencies")]
     public GridManager gridManager;
     public Pathfinder pathfinder;
     public Transform player;
 
-    [Header("Behavior Settings")]
-    public float playerDetectionRadius = 5f;
-    public float escapeDistance = 10f;
-    public float moveSpeed = 2.5f;
-    public float flowerReachDistance = 0.5f;
+    [Header("Settings")]
+    public float hoverHeight = 1.2f;
+    public float playerDetectionRadius = 6f;
+    public float escapeDistance = 12f;
+    public float flowerReachDistance = 0.6f;
+
+    private AgentController agent;
+    private LineRenderer lr;
 
     private Vector3 targetPos;
     private List<Node> currentPath = null;
-    private int currentPathIndex = 0;
-    private float escapeCooldown = 0f;
-    private float escapeCooldownTime = 0.5f;
 
+    // Cache flower list 
+    private static GameObject[] cachedFlowers;
 
-    private AgentController agent;
-
-
+    private float escapeRepathTimer = 0f;
+    private const float ESCAPE_REPATH_DELAY = 0.5f;
 
     private void Awake()
     {
         agent = GetComponent<AgentController>();
+
+        // Path visualization
+        GameObject lrObj = new GameObject("PathLine_" + name);
+        lr = lrObj.AddComponent<LineRenderer>();
+        lr.widthMultiplier = 0.08f;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startColor = Color.yellow;
+        lr.endColor = Color.green;
     }
 
+    public void InitializeAfterSpawn()
+    {
+        CacheFlowers();
+        PickNewFlowerTarget();
+    }
 
     private void Update()
     {
-       
+        if (player == null || gridManager == null) return;
 
-        switch (currentState)
+        switch (state)
         {
-            case ButterflyState.SeekingFlower:
-                HandleSeekingFlower();
-                break;
-
-            case ButterflyState.Escaping:
-                UpdateEscaping();
-                print("Butterfly running");
-                break;
+            case State.SeekingFlower: UpdateSeeking(); break;
+            case State.Escaping: UpdateEscaping(); break;
         }
     }
 
-
-    private void HandleSeekingFlower()
+    // SEEKING FLOWERS
+    private void UpdateSeeking()
     {
-        // Detect player
-        if (player != null && Vector3.Distance(transform.position, player.position) < playerDetectionRadius)
-        {
-            ChangeState(ButterflyState.Escaping);
-            StartEscape();
-            return;
-        }
+        // Player too close  ... escape
+        if (Vector3.Distance(transform.position, player.position) < playerDetectionRadius)
+            EnterEscapeState();
 
-        // If path finished  find a new flower
-        if (agent.HasFinishedPath())
-        {
-            FindNewFlowerTarget();
-            return;
-        }
+        // Reached flower .... pick new one
+        else if (Vector3.Distance(transform.position, targetPos) < flowerReachDistance)
+            PickNewFlowerTarget();
 
-        // Reached flower
-        if (Vector3.Distance(transform.position, targetPos) < flowerReachDistance)
-        {
-            FindNewFlowerTarget();
-        }
+        // No path or finished ... recalc
+        else if (agent.HasFinishedPath())
+            PickNewFlowerTarget();
     }
 
-
-    private void FindNewFlowerTarget()
+    private void CacheFlowers()
     {
-        GameObject[] flowers = GameObject.FindGameObjectsWithTag("Flower");
-        if (flowers.Length == 0)
+        if (cachedFlowers == null)
+            cachedFlowers = GameObject.FindGameObjectsWithTag("Flower");
+    }
+
+    private void PickNewFlowerTarget()
+    {
+        CacheFlowers();
+        if (cachedFlowers.Length == 0)
         {
             Debug.LogWarning("No flowers found!");
             return;
         }
 
-        // Find nearest flower
-        GameObject nearest = null;
-        float minDist = Mathf.Infinity;
-        foreach (var f in flowers)
+        float bestDist = Mathf.Infinity;
+        GameObject best = null;
+
+        foreach (var f in cachedFlowers)
         {
-            float dist = Vector3.Distance(transform.position, f.transform.position);
-            if (dist < minDist)
+            float d = Vector3.Distance(transform.position, f.transform.position);
+            if (d < bestDist)
             {
-                minDist = dist;
-                nearest = f;
+                bestDist = d;
+                best = f;
             }
         }
 
-        if (nearest == null) return;
-
-        targetPos = nearest.transform.position;
-        ComputePathToTarget();
+        if (best != null)
+        {
+            targetPos = best.transform.position;
+            ComputePath(targetPos);
+        }
     }
 
-
-
-    // ESCAPING
-    private void StartEscape()
+    // ESCAPING PLAYER
+    private void EnterEscapeState()
     {
-        currentState = ButterflyState.Escaping;
+        if (state == State.Escaping) return; // prevent double trigger
 
-        Vector3 runDir = (transform.position - player.position).normalized;
-        Vector3 fleePos = transform.position + runDir * escapeDistance;
-
-        // Clamp to walkable node
-        Node node = gridManager.NodeFromWorldPosition(fleePos);
-        if (node == null || !node.walkable)
-            node = gridManager.GetFarthestNodeFrom(player.position);
-
-        targetPos = node.worldPosition;
-        ComputePathToTarget();
+        state = State.Escaping;
+        escapeRepathTimer = ESCAPE_REPATH_DELAY;
+        ComputeEscapePath();
     }
-
 
     private void UpdateEscaping()
     {
-        escapeCooldown -= Time.deltaTime;
+        float dist = Vector3.Distance(transform.position, player.position);
 
-        if (agent.HasFinishedPath())
+        // Safe again ... resume seeking
+        if (dist > playerDetectionRadius * 1.6f)
         {
-            if (Vector3.Distance(transform.position, player.position) > playerDetectionRadius * 1.5f)
-            {
-                ChangeState(ButterflyState.SeekingFlower);
-                return;
-            }
-
-            if (escapeCooldown <= 0f)
-            {
-                escapeCooldown = escapeCooldownTime;
-                StartEscape();
-            }
+            state = State.SeekingFlower;
+            PickNewFlowerTarget();
+            return;
         }
 
+        // Repath if finished or escape continues
+        escapeRepathTimer -= Time.deltaTime;
+        if (agent.HasFinishedPath() && escapeRepathTimer <= 0f)
+        {
+            escapeRepathTimer = ESCAPE_REPATH_DELAY;
+            ComputeEscapePath();
+        }
     }
 
+    private void ComputeEscapePath()
+    {
+        Vector3 direction = (transform.position - player.position).normalized;
+        Vector3 fleePos = transform.position + direction * escapeDistance;
 
-    private void ComputePathToTarget()
+        fleePos = gridManager.ClampToGrid(fleePos);
+
+        Node farNode = gridManager.NodeFromWorldPosition(fleePos);
+
+        if (farNode == null || !farNode.walkable)
+            farNode = gridManager.GetFarthestNodeFrom(player.position);
+
+        targetPos = farNode.worldPosition;
+        ComputePath(targetPos);
+    }
+
+    // PATHFINDING
+    private void ComputePath(Vector3 worldTarget)
     {
         Node start = gridManager.NodeFromWorldPosition(transform.position);
-        Node target = gridManager.NodeFromWorldPosition(targetPos);
+        Node target = gridManager.NodeFromWorldPosition(worldTarget);
 
         if (start == null || target == null)
         {
-            Debug.LogWarning("Invalid start or target node for Butterfly.");
+            lr.positionCount = 0;
             return;
         }
 
         currentPath = pathfinder.FindPath(start, target);
-        //currentPath = pathfinder.FindPath(transform.position, targetPos);
-        currentPathIndex = 0;
 
         if (currentPath == null || currentPath.Count == 0)
         {
-            Debug.Log("No path found for Butterfly.");
+            lr.positionCount = 0;
             return;
         }
 
-        // Give path to AgentController (world-space waypoints)
         List<Vector3> waypoints = new List<Vector3>();
- 
         foreach (Node n in currentPath)
         {
             Vector3 p = n.worldPosition;
-            p.y = 1.0f;    // keeps butterfly at a fixed hover height
-            //p.y = gridManager.NodeFromWorldPosition(p).worldPosition.y + 0.5f;
-
+            p.y = hoverHeight;
             waypoints.Add(p);
         }
 
         agent.SetPath(waypoints);
-        DrawPath(currentPath);
+        DrawPath();
     }
 
- 
-    private void DrawPath(List<Node> path)
+    private void DrawPath()
     {
-        if (path == null || path.Count == 0)
+        if (currentPath == null || currentPath.Count == 0)
         {
-            print("No path");
+            lr.positionCount = 0;
             return;
         }
 
+        lr.positionCount = currentPath.Count;
 
-        GameObject lrgo = GameObject.Find("PathLineRenderer");
-        LineRenderer lr;
-
-        if (lrgo == null)
-        {
-            lrgo = new GameObject("PathLineRenderer");
-            lr = lrgo.AddComponent<LineRenderer>();
-            lr.widthMultiplier = 0.2f;
-            lr.material = new Material(Shader.Find("Sprites/Default"));
-            lr.startColor = Color.yellow;
-            lr.endColor = Color.green;
-        }
-        else
-        {
-            lr = lrgo.GetComponent<LineRenderer>();
-        }
-
-        lr.positionCount = path.Count;
-        for (int i = 0; i < path.Count; i++)
-        {
-            lr.SetPosition(i, path[i].worldPosition + Vector3.up * 0.2f);
-        }
-    }
-
-    private void ChangeState(ButterflyState newState)
-    {
-        if (currentState == newState) return;
-
-        currentState = newState;
-        Debug.Log($"Butterfly state changed to: {newState}");
-
-        if (newState == ButterflyState.Escaping)
-            StartEscape();
-
-        if (newState == ButterflyState.SeekingFlower)
-            FindNewFlowerTarget();
-
-    }
-
-    private void OnDrawGizmos()
-    {
-        // Draw start (current position)
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(transform.position + Vector3.up * 0.2f, 0.2f);
-
-        // Draw target (flower)
-        if (targetPos != Vector3.zero)
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawSphere(targetPos + Vector3.up * 0.2f, 0.5f);
-            Gizmos.DrawLine(transform.position, targetPos);
-        }
-
-        // Optionally draw path nodes
-        if (currentPath != null && currentPath.Count > 1)
-        {
-            Gizmos.color = Color.cyan;
-            for (int i = 0; i < currentPath.Count - 1; i++)
-            {
-                Gizmos.DrawLine(currentPath[i].worldPosition + Vector3.up * 0.2f,
-                                currentPath[i + 1].worldPosition + Vector3.up * 0.2f);
-            }
-        }
+        for (int i = 0; i < currentPath.Count; i++)
+            lr.SetPosition(i, currentPath[i].worldPosition + Vector3.up * 0.25f);
     }
 }
+
+//    private void ChangeState(ButterflyState newState)
+//    {
+//        if (currentState == newState) return;
+
+//        currentState = newState;
+//        Debug.Log($"Butterfly state changed to: {newState}");
+
+//        if (newState == ButterflyState.Escaping)
+//            StartEscape();
+
+//        if (newState == ButterflyState.SeekingFlower)
+//            FindNewFlowerTarget();
+
+//    }
+
+//    private void OnDrawGizmos()
+//    {
+//        // Draw start (current position)
+//        Gizmos.color = Color.green;
+//        Gizmos.DrawSphere(transform.position + Vector3.up * 0.2f, 0.2f);
+
+//        // Draw target (flower)
+//        if (targetPos != Vector3.zero)
+//        {
+//            Gizmos.color = Color.magenta;
+//            Gizmos.DrawSphere(targetPos + Vector3.up * 0.2f, 0.5f);
+//            Gizmos.DrawLine(transform.position, targetPos);
+//        }
+
+//        // Optionally draw path nodes
+//        if (currentPath != null && currentPath.Count > 1)
+//        {
+//            Gizmos.color = Color.cyan;
+//            for (int i = 0; i < currentPath.Count - 1; i++)
+//            {
+//                Gizmos.DrawLine(currentPath[i].worldPosition + Vector3.up * 0.2f,
+//                                currentPath[i + 1].worldPosition + Vector3.up * 0.2f);
+//            }
+//        }
+//    }
+//}
