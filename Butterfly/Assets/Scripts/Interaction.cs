@@ -27,7 +27,16 @@ public class Interaction : MonoBehaviour
         {
             var interactionPosition = butterflies[i].GetComponentInChildren<SphereCollider>();
 
-            
+            // distance between player and butterfly
+            float dist = Vector3.Distance(transform.position, interactionPosition.transform.position);
+
+            // check if inside butterfly radius
+            if (dist <= interactionPosition.radius * interactionPosition.transform.localScale.x)
+            {
+                // collect the butterfly
+                butterflies[i].SetActive(false);
+                return;
+            }
         }
     }
 }

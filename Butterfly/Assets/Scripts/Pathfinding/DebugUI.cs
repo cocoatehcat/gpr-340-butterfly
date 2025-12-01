@@ -9,12 +9,6 @@ public class DebugUI : MonoBehaviour
     public Pathfinder pathfinder;
     public HeightmapGenerator heightmapGenerator;
 
-    [Header("UI")]
-    public TMP_Dropdown placementDropdown;
-    public Button btnPlaceSource;
-    public Button btnPlaceTarget;
-    public Button btnClearRoads;
-
     [Header("Prefabs")]
     public GameObject obstaclePrefab;
     public GameObject agentPrefab;
@@ -29,78 +23,12 @@ public class DebugUI : MonoBehaviour
 
     void Start()
     {
-        btnPlaceSource.onClick.AddListener(() => { placingSource = true; placingTarget = false; });
-        btnPlaceTarget.onClick.AddListener(() => { placingTarget = true; placingSource = false; });
 
         // default
         gridManager.InitializeGrid();
     }
 
-    void Update()
-    {
-        HandleMouseInput();
-    }
-
-    private void HandleMouseInput()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                if (placingSource)
-                {
-                    SetSource(hit.point);
-                    placingSource = false;
-                }
-                else if (placingTarget)
-                {
-                    SetTarget(hit.point);
-                    placingTarget = false;
-                }
-                else
-                {
-                    int sel = placementDropdown.value;
-                    if (sel == 0) // obstacle
-                    {
-                        PlaceObstacle(hit.point);
-                        gridManager.InitializeGrid();
-                    }
-                    else if (sel == 1) // weight
-                    {
-                        SetWeightAtPoint(hit.point, 5f);
-                        gridManager.InitializeGrid();
-                    }
-                }
-            }
-        }
-    }
-
-    private void SetSource(Vector3 pos)
-    {
-        sourcePos = pos;
-        if (debugSourceGO == null)
-        {
-            debugSourceGO = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            debugSourceGO.transform.localScale = Vector3.one * 0.6f;
-            debugSourceGO.name = "Start";
-        }
-        debugSourceGO.transform.position = pos + Vector3.up * 0.5f;
-    }
-
-    private void SetTarget(Vector3 pos)
-    {
-        targetPos = pos;
-        if (debugTargetGO == null)
-        {
-            debugTargetGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            debugTargetGO.transform.localScale = Vector3.one * 0.6f;
-            debugTargetGO.name = "Target";
-        }
-        debugTargetGO.transform.position = pos + Vector3.up * 0.5f;
-    }
-
-    private void PlaceObstacle(Vector3 pos)
+    public void PlaceObstacle(Vector3 pos)
     {
         GameObject go;
 
@@ -122,13 +50,6 @@ public class DebugUI : MonoBehaviour
             go.AddComponent<BoxCollider>();
 
         gridManager.InitializeGrid();
-    }
-
-    private void SetWeightAtPoint(Vector3 pos, float w)
-    {
-        Node node = gridManager.NodeFromWorldPosition(pos);
-        node.weight = w;
-        Debug.Log($"Set weight {w} at node {node.gridX},{node.gridY}");
     }
 
     public void OnReset()
