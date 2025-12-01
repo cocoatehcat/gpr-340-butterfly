@@ -102,6 +102,7 @@ public class GridManager : MonoBehaviour
                     node.walkable = false;
 
                 // --- obstacle check ---
+                // todo: needs to be updated for the trees
                 Collider[] cols = Physics.OverlapBox(
                     worldPos + Vector3.up * 0.5f,
                     Vector3.one * cellSize * 0.45f,
