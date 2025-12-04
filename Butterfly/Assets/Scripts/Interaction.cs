@@ -21,8 +21,9 @@ public class Interaction : MonoBehaviour
         self = transform.GetComponent(typeof(CapsuleCollider)) as CapsuleCollider;
     }
 
-    public void OnInteract(InputValue interactValue)
+    void OnInteract(InputValue interactValue)
     {
+        print("What");
         for (int i = 0;  i < butterflies.Length; i++)
         {
             var interactionPosition = butterflies[i].GetComponentInChildren<SphereCollider>();
