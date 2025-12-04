@@ -117,6 +117,8 @@ GameObject:
   - component: {fileID: 2373049037297002683}
   - component: {fileID: 4451038273146565193}
   - component: {fileID: 5438717313137844821}
+  - component: {fileID: 7890864582510775481}
+  - component: {fileID: 5983530972958811986}
   m_Layer: 0
   m_Name: Butterfly
   m_TagString: Butterfly
@@ -266,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf8a11ac01f63454b8b75ca26f3bb298, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentController
-  moveSpeed: 15
+  moveSpeed: 3
   turnSpeed: 1
   arriveThreshold: 1.5
 --- !u!114 &5438717313137844821
@@ -283,9 +285,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ButterflySpawner
   butterflyPrefab: {fileID: 0}
   butterflyCount: 10
-  player: {fileID: 0}
-  gridManager: {fileID: 0}
-  pathfinder: {fileID: 0}
+  player: {fileID: 1287064363103011407, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
+  gridManager: {fileID: 328567073216343080, guid: 95b447bb737fb6b439a095a6daca2ba8, type: 3}
+  pathfinder: {fileID: 5793659389675613126, guid: 95b447bb737fb6b439a095a6daca2ba8, type: 3}
+--- !u!114 &7890864582510775481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5661025720186201947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b05635c8cd64a644b078774f59d097f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CollectableButterfly
+  collectKey: 101
+--- !u!135 &5983530972958811986
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5661025720186201947}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3042692368727974972
 PrefabInstance:
   m_ObjectHideFlags: 0

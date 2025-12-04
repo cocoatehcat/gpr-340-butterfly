@@ -24,7 +24,7 @@ public class Interaction : MonoBehaviour
     void OnInteract(InputValue interactValue)
     {
         print("What");
-        for (int i = 0;  i < butterflies.Length; i++)
+        for (int i = 0; i < butterflies.Length; i++)
         {
             var interactionPosition = butterflies[i].GetComponentInChildren<SphereCollider>();
 
