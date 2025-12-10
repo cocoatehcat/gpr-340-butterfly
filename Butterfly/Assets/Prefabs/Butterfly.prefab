@@ -268,7 +268,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf8a11ac01f63454b8b75ca26f3bb298, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentController
-  moveSpeed: 3
+  moveSpeed: 6
   turnSpeed: 1
   arriveThreshold: 1.5
 --- !u!114 &5438717313137844821

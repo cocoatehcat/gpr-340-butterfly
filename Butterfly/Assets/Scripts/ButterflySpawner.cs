@@ -9,6 +9,11 @@ public class ButterflySpawner : MonoBehaviour
     public Transform player;
     public GridManager gridManager;
     public Pathfinder pathfinder;
+    public PlayerScore playerScore;
+
+    public GameObject collectPrompt;  
+
+
 
     IEnumerator Start()
     {
@@ -28,7 +33,17 @@ public class ButterflySpawner : MonoBehaviour
             bb.pathfinder = pathfinder;
             bb.player = player;
 
+            var cb = b.GetComponent<CollectableButterfly>();
+            cb.collectPrompt = collectPrompt;
+
             bb.InitializeAfterSpawn();
+        }
+
+
+        if (playerScore != null)
+        {
+            playerScore.totalButterflies = butterflyCount;
+            playerScore.UpdateScoreUI();
         }
     }
 
