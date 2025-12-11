@@ -1,22 +1,10 @@
-//using UnityEngine;
-
-//public class PlayerScore : MonoBehaviour
-//{
-//    public int score = 0;
-
-//    public void AddPoint()
-//    {
-//        score++;
-//        Debug.Log("Score: " + score);
-//    }
-//}
 using UnityEngine;
 using TMPro;
 
 public class PlayerScore : MonoBehaviour
 {
     public int score = 0;
-    public int totalButterflies = 10;   // Set this from the  spawner
+    public int totalButterflies = 10;  
     public TMP_Text scoreText;
     public GameObject winScreen;
 

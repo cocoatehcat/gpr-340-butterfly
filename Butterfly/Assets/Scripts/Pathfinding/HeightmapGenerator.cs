@@ -54,7 +54,7 @@ public class HeightmapGenerator : MonoBehaviour
                 Vector3 worldPos = transform.TransformPoint(localPos);
 
                 // Spawn tree
-                if (Random.value < 0.005f)
+                if (Random.value < 0.0025f) //0.005f
                 {
                     Instantiate(tree, worldPos + Vector3.up * treeOffset, Quaternion.identity, treeParent.transform);
                     continue;

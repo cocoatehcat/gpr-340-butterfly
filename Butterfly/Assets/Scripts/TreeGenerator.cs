@@ -8,7 +8,7 @@ public class TreeGenerator : MonoBehaviour
     {
         float num = Random.value;
 
-        if (num > 0.8)
+        if (num > 0.8) // 0.8
         {
             Instantiate(gameObject);
             gameObject.transform.position = position;
