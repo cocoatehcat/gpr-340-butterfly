@@ -1736,7 +1736,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2063803901}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f10303a3d53360b43aeada02202aba5c, type: 3}
   m_Name: 
@@ -1754,8 +1754,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26dba4447a517bf4cb741c32af0e456f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MouseLook
-  sensitivity: 300
-  playerBody: {fileID: 1781099865}
+  trackedObject: {fileID: 1781099865}
+  maxDistance: 10
+  moveSpeed: 20
+  updateSpeed: 10
+  currentDistance: 5
+  hideDistance: 1.5
 --- !u!1 &2121345766
 GameObject:
   m_ObjectHideFlags: 0
@@ -1944,6 +1948,10 @@ PrefabInstance:
     - target: {fileID: 1287064363103011407, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6519242342683124091, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 7109837905916843759, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
       propertyPath: m_Name

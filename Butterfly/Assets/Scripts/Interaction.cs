@@ -41,11 +41,3 @@ public class Interaction : MonoBehaviour
         }
     }
 }
-
-/*
- * Press e
- * check if bug is in radius
- * if there is bug in radius
- * collect bug
- * else return nothing
- */
