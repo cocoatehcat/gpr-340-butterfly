@@ -4,8 +4,9 @@ using UnityEngine;
 public class Timer : MonoBehaviour
 {
     public float timeRemaining;
-    public bool timerIsRunning = true;
+    public bool timerIsRunning = false;
     public TMP_Text timerText;
+    public GameObject LossScreen;
 
     void Update()
     {
@@ -19,7 +20,8 @@ public class Timer : MonoBehaviour
             else
             {
                 Debug.Log("Time has run out!");
-                timeRemaining = 0;
+                LossScreen.SetActive(true);
+                LossScreen.transform.GetChild(0).GetChild(0).GetComponent<TextMeshPro>().text = timeRemaining.ToString();
                 timerIsRunning = false;
             }
         }

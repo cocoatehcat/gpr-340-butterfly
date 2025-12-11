@@ -7,6 +7,7 @@ public class PlayerScore : MonoBehaviour
     public int totalButterflies = 10;  
     public TMP_Text scoreText;
     public GameObject winScreen;
+    public Timer timer;
 
     private void Start()
     {
@@ -36,8 +37,15 @@ public class PlayerScore : MonoBehaviour
     private void WinGame()
     {
         Debug.Log("YOU WIN!");
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         if (winScreen != null)
             winScreen.SetActive(true);
+
+        // Display final time
+        winScreen.transform.GetChild(0).GetChild(0).GetComponent<TextMeshPro>().text = timer.timeRemaining.ToString();
 
         Time.timeScale = 0f; // Freeze game
     }

@@ -19,8 +19,6 @@ public class MouseLook : MonoBehaviour
     {
         ahead = new GameObject("ahead");
         _renderer = trackedObject.gameObject.GetComponent<MeshRenderer>();
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     void LateUpdate()
