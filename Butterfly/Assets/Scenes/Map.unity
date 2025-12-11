@@ -454,7 +454,7 @@ MonoBehaviour:
 
     You Lose
 
-    
+
 
 '
   m_isRightToLeft: 0
@@ -1547,7 +1547,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &754922731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3968,6 +3968,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 963771291292690619, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1287064363103011407, guid: e95c6fd43db0dbb43b89951cb89132ce, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.706
